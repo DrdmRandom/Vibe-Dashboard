@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import Image from "next/image";
 import * as Icons from "lucide-react";
 import { motion } from "framer-motion";
@@ -66,11 +66,13 @@ export const AppTile = ({ app, enablePing = true, onEdit, onDelete }: AppTilePro
     };
   }, [enablePing, targetUrl]);
 
-  const IconComponent = useMemo(() => {
+  type IconType = ComponentType<Icons.LucideProps>;
+
+  const IconComponent = useMemo<IconType | null>(() => {
     if (!app.icon) return Icons.AppWindow;
     if (/^https?:\/\//.test(app.icon)) return null;
     const maybe = Icons[app.icon as keyof typeof Icons];
-    return maybe ?? Icons.AppWindow;
+    return typeof maybe === "function" ? (maybe as IconType) : Icons.AppWindow;
   }, [app.icon]);
 
   const openUrl = targetUrl || "#";
@@ -142,7 +144,7 @@ export const AppTile = ({ app, enablePing = true, onEdit, onDelete }: AppTilePro
                 </Badge>
               ))}
               {extraTagsCount > 0 && (
-                <Badge variant="outline" className="border-white/20 bg-white/5 text-white/70">
+                <Badge variant="default" className="border-white/20 bg-white/5 text-white/70">
                   +{extraTagsCount}
                 </Badge>
               )}
